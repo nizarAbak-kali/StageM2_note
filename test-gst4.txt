@@ -1,0 +1,6 @@
+ Requête et Sometimes Pads :
+    > Sometimes pads :
+        - creer que sous certaine condition 
+        - en general apres avoir parsé le header du stream et decidé quel streams elementaire 
+        (video, audio, subtitle) sont inclus et donc on creerais  un sometimes pour chacun de ces stream (DEMUXER SIDE)
+        cf exemple_sometimes pads

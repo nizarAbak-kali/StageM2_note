@@ -1,0 +1,4 @@
+GST_DEBUG_DUMP_DOT_DIR=. GST_DEBUG=3  gst-launch fakesrc do-timestamp=true blocksize=80
+num-buffers=50  sizetype=fixed  format=time filltype=pattern ! meta/x-klv ! identity sync=true !
+mpegtsmux name=m ! filesink location="./lol.ts"  videotestsrc num-buffers=50  ! x264enc ! m.
+

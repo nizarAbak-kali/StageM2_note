@@ -1,0 +1,97 @@
+
+Installation de gst a l'aide de cerebro:
+
+lien utiles :
+
+https://github.com/GStreamer/cerbero
+https://github.com/centricular/cerber://github.com/centricular/cerbero
+https://github.com/centricular/cerbero-docs/blob/master/start.md
+
+etapes :
+    - git clone https://github.com/GStreamer/cerbero.git
+    - git checkout 1.14
+    - ./cerbero-uninstalled bootstrap
+    - cerbero-uninstalled package gstreamer-1.0 (pour tout dl +build)
+    - pour installer le tout dans le path ....
+    - creer une environnment pour gst :
+        export GST_PATH='/home/niaba/install/cerbero/build/dist/linux_x86_64'
+        export PATH="${GST_PATH}/bin:${PATH}"
+        export LD_LIBRARY_PATH="${GST_PATH}/lib:${LD_LIBRARY_PATH}"
+        export GST_PLUGIN_PATH='${GST_PATH}/lib/gstreamer-1.0'
+
+
+compilation: 
+
+cmake power !!!!
+
+
+17/03/2017
+
+regularisation de l'envirronement de dev (build + exec):
+    build :
+    - copie des libs dans /usr/local/gstlibs/
+    - export LD_LIBRARY_PATH=/usr/local/gstlibs/:$LD_LIBRARY_PATH
+    - un petit coup de ldconfig (sa semble reglée le probleme de linking de lib)
+    
+    exec 
+    - copie des binaire dans le /usr/local/bin
+
+
+
+Testing your element
+    - gst-launch is not a good tool to show that your element is finished. Applications such as Rhythmbox and Totem (for GNOME) or AmaroK (for KDE) are. gst-launch will not test various things such as proper clean-up on reset, event handling, querying and so on.
+
+    - Parsers and demuxers should make sure to check their input. Input cannot be trusted. Prevent possible buffer overflows and the like. Feel free to error out on unrecoverable stream errors. Test your demuxer using stream corruption elements such as breakmydata (included in gst-plugins). It will randomly insert, delete and modify bytes in a stream, and is therefore a good test for robustness. If your element crashes when adding this element, your element needs fixing. If it errors out properly, it's good enough. Ideally, it'd just continue to work and forward data as much as possible.
+
+    - Demuxers should not assume that seeking works. Be prepared to work with unseekable input streams (e.g. network sources) as well.
+
+    - Sources and sinks should be prepared to be assigned another clock then the one they expose themselves. Always use the provided clock for synchronization, else you'll get A/V sync issues.
+
+
+PBs: 
+-> sa semble fonctionnée sauf que GST n'arrive pas chargé mon plugin....
+-> le plugin de libmpegtsdemux pointe vers le dossier de build et non le dossier gstlibs
+-> je n'arrive pas à tester mon code ....
+-> pas de doc par rapport à mon problème.... 
+
+THE BIG PROBLEM:
+>$ source test.sh
+>$ test_plugin .
+n-scanner:6700): GStreamer-WARNING **: Failed to load plugin './libmpegtsdemux.so': ./libmpegtsdemux.so: undefined symbol: gst_byte_writer_reset_and_get_data
+0:00:00.646261756  6700      0x1263490 WARN      GST_PLUGIN_LOADING gstplugin.c:526:gst_plugin_register_func: plugin "/home/niaba/install/cerbero/build/dist/linux_x86_64/lib/gstreamer-1.0/validate/libgstvalidatessim.so" failed to initialise
+mpegtsmux:  mpegtsmux: MPEG Transport Stream Muxer
+libav:  avmux_mpegts: libav MPEG-TS (MPEG-2 Transport Stream) muxer (not recommended, use mpegtsmux instead)
+typefindfunctions: video/mpegts: ts, mts
+mpegtsdemux:  tsdemux: MPEG transport stream demuxer
+mpegtsdemux:  tsparse: MPEG transport stream parser
+
+-----------------------------------------------------------
+0:00:00.000931514 28669      0x23fa490 WARN      GST_PLUGIN_LOADING gstplugin.c:748:_priv_gst_plugin_load_file_for_registry: module_open failed: ./libmpegtsdemux.so: undefined symbol: gst_byte_writer_reset_and_get_data
+
+(gst-plugin-scanner:28669): GStreamer-WARNING **: Failed to load plugin './libmpegtsdemux.so': ./libmpegtsdemux.so: undefined symbol: gst_byte_writer_reset_and_get_data
+0:00:00.001119781 28669      0x23fa490 WARN      GST_PLUGIN_LOADING gstplugin.c:748:_priv_gst_plugin_load_file_for_registry: module_open failed: ./libmpegloldemux.so: undefined symbol: gst_byte_writer_reset_and_get_data
+
+(gst-plugin-scanner:28669): GStreamer-WARNING **: Failed to load plugin './libmpegloldemux.so': ./libmpegloldemux.so: undefined symbol: gst_byte_writer_reset_and_get_data
+
+-----------------------------------------------------------
+
+0:00:00.005670367  6700      0x1263490 WARN      GST_PLUGIN_LOADING gstplugin.c:748:_priv_gst_plugin_load_file_for_registry: module_open failed: ./libmpegtsdemux.so: undefined symbol: gst_byte_writer_reset_and_get_data
+
+(gst-plugin-scanner:6700): GStreamer-WARNING **: Failed to load plugin './libmpegtsdemux.so': ./libmpegtsdemux.so: undefined symbol: gst_byte_writer_reset_and_get_data
+0:00:00.646261756  6700      0x1263490 WARN      GST_PLUGIN_LOADING gstplugin.c:526:gst_plugin_register_func: plugin "/home/niaba/install/cerbero/build/dist/linux_x86_64/lib/gstreamer-1.0/validate/libgstvalidatessim.so" failed to initialise
+mpegtsmux:  mpegtsmux: MPEG Transport Stream Muxer
+libav:  avmux_mpegts: libav MPEG-TS (MPEG-2 Transport Stream) muxer (not recommended, use mpegtsmux instead)
+typefindfunctions: video/mpegts: ts, mts
+mpegtsdemux:  tsdemux: MPEG transport stream demuxer
+mpegtsdemux:  tsparse: MPEG transport stream parser
+
+quelque ligne interessantes :
+-> pour lire dans le elf la string posant problème
+    readelf -s libgstmpegtsdemux.so |grep gst_byte_writer_reset_and_get_data
+    strings libmpegloldemux.so |grep gst_byte_writer_reset
+
+------------------------------------------------------------------
+
+SOLUTION :
+	LINKER les bonnes libs dans le cmake
+	pour verifier quelle version du plugin on utilise 

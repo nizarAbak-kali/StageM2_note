@@ -1,0 +1,75 @@
+TEST3 ... DU C!!! et un chouya de python
+
+
+// une ligne de compilation avec toutes les flags pour GST
+gcc testgst-elementfactory.c `pkg-config --cflags gstreamer-1.0` `pkg-config --libs gstreamer-1.0` -fPIC
+
+// mpgegts
+
+
+	// board side 
+gst-launch udpsrc port=3001 ! 'video/mpegts, systemstream=(boolean)true, packetsize=(int)188' ! tsdemux ! 'video/x-h264' ! avdec_h264 ! 'video/x-raw, width=(int)640, height=(int)480, framerate=(fraction)25/1, interlaced=(boolean)false' ! xvimagesink sync=false
+
+	// client side
+ 
+gst-launch udpsrc port=3001 ! 'video/mpegts, systemstream=(boolean)true, packetsize=(int)188' ! tsdemux ! 'video/x-h264' ! avdec_h264 ! 'video/x-raw, width=(int)640, height=(int)480, framerate=(fraction)25/1, interlaced=(boolean)false' ! xvimagesink sync=false
+
+// gst doc writing a plugin 
+
+    - pads = direction (sink or src)
+    - existence prop = always (le pad est tt le tpŝ la), sometimes (cas ou le pad existe), request (l'application demande le que le pad exist)
+    - type support
+
+
+    Each element has two functions which are used for construction of an element. The _class_init() function, which is used to initialise the class only once (specifying what signals, arguments and virtual functions the class has and setting up global state); and the _init() function, which is used to initialise a specific instance of this type.
+------------------------------
+     plugin_init :
+    DONE
+----------------------
+    specifying the pads :
+    - port I/O de l'element 
+    _ _init() fonction pour creer le pad template , ensuite il faut set le pointeur vers la fonction _chain() qui recoie et process le l'input. (option) set un pointeur de fonction _event et _query
+-----------------------------------------
+    chain function
+        - _chain() functions qui font tout le process de la data . Dans le cas d'un filtre simple il s'agit surtout de fonction lineaire . 1 buffer -> filter -> 1 buffer out
+        (cf code d'essais pour plus de plaisir....)
+
+        - GST_MY_FILTER(parent) -> on recupere les diff filtre que l'on herite
+        - gst_buffer_unref -> derefencer un buffer (important)
+        
+-----------------------------------------
+    event function:
+        - notification d'events speciaux dans le datastream (les caps, EOS, newsegment,
+        tags, etc)
+        - voyage up et down stream donc on peut en recevoir aussi bien dans le sink que dans le src pads
+
+-----------------------------------------
+    query function:
+        - au travers des query fonction l'element recevra des requete auquelle il devra repondre . ex : position, duration, supported format, scheduling modes. up and down .
+        - gst_pad_set_query_function (filter->srcpad,
+              gst_my_filter_src_query)-> set une query sur un pad 
+------------------------------------------
+    les states :
+    GST_STATE_NULL is the default state of an element. In this state, it has not allocated any runtime resources, it has not loaded any runtime libraries and it can obviously not handle data.
+
+    GST_STATE_READY is the next state that an element can be in. In the READY state, an element has all default resources (runtime-libraries, runtime-memory) allocated. However, it has not yet allocated or defined anything that is stream-specific. When going from NULL to READY state (GST_STATE_CHANGE_NULL_TO_READY), an element should allocate any non-stream-specific resources and should load runtime-loadable libraries (if any). When going the other way around (from READY to NULL, GST_STATE_CHANGE_READY_TO_NULL), an element should unload these libraries and free all allocated resources. Examples of such resources are hardware devices. Note that files are generally streams, and these should thus be considered as stream-specific resources; therefore, they should not be allocated in this state.
+
+    GST_STATE_PAUSED is the state in which an element is ready to accept and handle data. For most elements this state is the same as PLAYING. The only exception to this rule are sink elements. Sink elements only accept one single buffer of data and then block. At this point the pipeline is 'prerolled' and ready to render data immediately.
+
+    GST_STATE_PLAYING is the highest state that an element can be in. For most elements this state is exactly the same as PAUSED, they accept and process events and buffers with data. Only sink elements need to differentiate between PAUSED and PLAYING state. In PLAYING state, sink elements actually render incoming data, e.g. output audio to a sound card or render video pictures to an image sink.
+
+------------------------------------------
+
+    AJOUT D'UNE DE PROPS 
+
+cf : https://gstreamer.freedesktop.org/documentation/plugin-development/basics/args.html
+
+
+------------------------------------------
+Build d'une app test: 
+
+
+
+
+
+

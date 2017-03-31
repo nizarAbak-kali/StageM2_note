@@ -1,0 +1,6 @@
+rm ~/.cache/gstreamer-1.0/registry.x86_64.bin   
+mkdir build
+cd build 
+cmake -DCMAKE_PREFIX_PATH=$GST_PATH ..
+make VERBOSE=1 -j4
+GST_DEBUG=4 gst-inspect-1.0 libnizar_mpegtsdemux.so  

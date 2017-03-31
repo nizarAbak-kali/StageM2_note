@@ -1,0 +1,63 @@
+TEST DE GST :
+
+gst-launch : creation d'un pipeline CLI et le lance
+
+gst-inspect : inspection d'un plugin ou bien un element 
+
+GST_DEBUG : pour afficher les logs d'un processus
+
+GST_DEBUG_DOT_DIR : creation du graph représentant le pipeline créer 
+--------------------------------------------------------------------------
+
+// Pipeline le plus simple source > sortie
+
+gst-launch-1.0 fakesrc ! fakesink
+
+// pipeline d'une source test > l'autovideosink
+
+gst-launch-1.0 videotestsrc ! autovideosink
+
+// pipe dela cam(v4l2src) > la sortie image
+
+gst-launch-1.0 v4l2src ! xvimagesink
+--------------------------------------------------------------------------
+
+// Pour chercher une élément
+
+gst-inspect |grep mp3|sort|head -3
+
+// playbin un autoplugger qui joue qu'elleque soit le flux que je lui envoie
+
+gst-inspect playbin
+
+// jouer un fichier avec playbin
+
+gst-launch-1.0 playbin uri=/home/niaba/test/videoMP4.mp4
+
+// link d'lement ensemble avec !
+
+gst-launch-1.0 audiotestsrc ! alsasink
+
+// plusieurs stream dans un meme pipeline (ici audio + video)
+
+gst-launch-1.0 audiotestsrc ! alsasink videotestsrc ! xvimagesink
+
+// fabriquation d'un image JPEG
+
+gst-launch-1.0 v4l2src num-buffers=1 ! jpegenc! filesink location=testvideotoframe.jpg
+
+// la proprieté name permet de reutiliser le meme élément 
+gst-launch-1.0 audiotestsrc ! vorbisenc ! oggmux name=mux ! filesink location=toto.ogg 
+videotestsrc ! theoraenc ! mux
+
+----------------------------------------------------------------------------------------
+// DEBOOOOOOOOOOOGUE
+
+// Pour connaitre  les options de debug activable
+gst-launch --gst-debug-help
+
+
+
+ex :  >$ GST_DEBUG=OPTION_DEBOGUE:VAL GST_CMD
+      >$ GST_DEBUG=GST_REFCOUNTING:5 gst-launch-1.0 audiotestsrc num-buffers=100 ! alsasink sync=false
+      

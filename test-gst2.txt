@@ -1,0 +1,24 @@
+SUITE DE LA FORMAITON GST
+
+// example d'envoie d'un flu video > >encodé en mp4 > payload en rtp (toutes les n seconde) > envoyé en udp udpsink host=127.0.0.1 port=5000
+---> transsmission
+gst-launch v4l2src ! videoconvert ! videoscale ! video/x-raw,width=800,height=600 !  avenc_mpeg4 ! rtpmp4vpay config-interval=3 ! udpsink host=127.0.0.1 port=5200
+----> reception
+
+ 	  
+Definitions : 
+
+	Element: class la plus importante de GStreamer, enchainement d'Element = pipeline
+	Pads : I/O des éléments, lien entre les different Element, filtre sur les datas entrante, lien entre deux pads ok que si meme types de data compatibles.
+		DATA TYPES == GstCaps.
+		Data == GstBuffer
+		events == GstEvent
+		
+	Bins : contenaire pour un ensemble d'Element, bin sous classe d' element donc ce controle comme un, on peut changer l'etat des tout les element d'un bin en changeant la bin elle meme, bin gere les message bus de ces enfants 
+	pipeline: super bin pause play 
+	
+	buffers : objet pour passer la donné streamé entre element dans le pipeline
+	events : objet pour app to pipeline 
+	messages : "" pipeline to app 
+			 
+	

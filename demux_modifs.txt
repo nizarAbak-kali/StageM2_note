@@ -1,0 +1,9 @@
+modifs tsdemux:
+
+    description des fichiers (peut-etre ajouter cela au doxygen) 
+    - gsttsdemux.c : 
+        + contient l'init des different plugin ainsi que le GST_PLUGIN_DEFINE
+    - tsdemux.c :
+        + le coeur du programme 
+        + contient les fonctions qui participe au demux des differents flux
+

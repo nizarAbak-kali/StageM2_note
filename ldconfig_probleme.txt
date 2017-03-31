@@ -1,0 +1,72 @@
+PBs: 
+-> sa semble fonctionnée sauf que GST n'arrive pas chargé mon plugin....
+-> le plugin de libmpegtsdemux pointe vers le dossier de build et non le dossier gstlibs
+-> je n'arrive pas à tester mon code ....
+-> pas de doc par rapport à mon problème.... 
+
+THE BIG PROBLEM:
+>$ source test.sh
+>$ test_plugin .
+n-scanner:6700): GStreamer-WARNING **: Failed to load plugin './libmpegtsdemux.so': ./libmpegtsdemux.so: undefined symbol: gst_byte_writer_reset_and_get_data
+0:00:00.646261756  6700      0x1263490 WARN      GST_PLUGIN_LOADING gstplugin.c:526:gst_plugin_register_func: plugin "/home/niaba/install/cerbero/build/dist/linux_x86_64/lib/gstreamer-1.0/validate/libgstvalidatessim.so" failed to initialise
+mpegtsmux:  mpegtsmux: MPEG Transport Stream Muxer
+libav:  avmux_mpegts: libav MPEG-TS (MPEG-2 Transport Stream) muxer (not recommended, use mpegtsmux instead)
+typefindfunctions: video/mpegts: ts, mts
+mpegtsdemux:  tsdemux: MPEG transport stream demuxer
+mpegtsdemux:  tsparse: MPEG transport stream parser
+
+-----------------------------------------------------------
+0:00:00.000931514 28669      0x23fa490 WARN      GST_PLUGIN_LOADING gstplugin.c:748:_priv_gst_plugin_load_file_for_registry: module_open failed: ./libmpegtsdemux.so: undefined symbol: gst_byte_writer_reset_and_get_data
+
+(gst-plugin-scanner:28669): GStreamer-WARNING **: Failed to load plugin './libmpegtsdemux.so': ./libmpegtsdemux.so: undefined symbol: gst_byte_writer_reset_and_get_data
+0:00:00.001119781 28669      0x23fa490 WARN      GST_PLUGIN_LOADING gstplugin.c:748:_priv_gst_plugin_load_file_for_registry: module_open failed: ./libmpegloldemux.so: undefined symbol: gst_byte_writer_reset_and_get_data
+
+(gst-plugin-scanner:28669): GStreamer-WARNING **: Failed to load plugin './libmpegloldemux.so': ./libmpegloldemux.so: undefined symbol: gst_byte_writer_reset_and_get_data
+
+-----------------------------------------------------------
+
+0:00:00.005670367  6700      0x1263490 WARN      GST_PLUGIN_LOADING gstplugin.c:748:_priv_gst_plugin_load_file_for_registry: module_open failed: ./libmpegtsdemux.so: undefined symbol: gst_byte_writer_reset_and_get_data
+
+(gst-plugin-scanner:6700): GStreamer-WARNING **: Failed to load plugin './libmpegtsdemux.so': ./libmpegtsdemux.so: undefined symbol: gst_byte_writer_reset_and_get_data
+0:00:00.646261756  6700      0x1263490 WARN      GST_PLUGIN_LOADING gstplugin.c:526:gst_plugin_register_func: plugin "/home/niaba/install/cerbero/build/dist/linux_x86_64/lib/gstreamer-1.0/validate/libgstvalidatessim.so" failed to initialise
+mpegtsmux:  mpegtsmux: MPEG Transport Stream Muxer
+libav:  avmux_mpegts: libav MPEG-TS (MPEG-2 Transport Stream) muxer (not recommended, use mpegtsmux instead)
+typefindfunctions: video/mpegts: ts, mts
+mpegtsdemux:  tsdemux: MPEG transport stream demuxer
+mpegtsdemux:  tsparse: MPEG transport stream parser
+
+quelque ligne interessantes :
+-> pour lire dans le elf la string posant problème
+    readelf -s libgstmpegtsdemux.so |grep gst_byte_writer_reset_and_get_data
+    strings libmpegloldemux.so |grep gst_byte_writer_reset
+
+
+- pre ldconfig :
+libgstreamer-1.0.so.0 => /usr/local/lib/gstlibs/lib/libgstreamer-1.0.so.0 (0x00007fedd17ce000)
+    ldd libmpegtsdemux.so 
+    linux-vdso.so.1 =>  (0x00007ffe0efc1000)
+    libgobject-2.0.so.0 => /usr/local/lib/gstlibs/lib/libgobject-2.0.so.0 (0x00007fedd157b000)
+    libglib-2.0.so.0 => /usr/local/lib/gstlibs/lib/libglib-2.0.so.0 (0x00007fedd1240000)
+    libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007fedd0e4a000)
+    libgmodule-2.0.so.0 => /home/niaba/install/cerbero/build/dist/linux_x86_64/lib/libgmodule-2.0.so.0 (0x00007fedd0c45000)
+    libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007fedd0a28000)
+    libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007fedd071f000)
+    librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007fedd0516000)
+    libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007fedd0312000)
+    libffi.so.6 => /home/niaba/install/cerbero/build/dist/linux_x86_64/lib/libffi.so.6 (0x00007fedd0109000)
+    /lib64/ld-linux-x86-64.so.2 (0x0000560c624f5000)
+    
+    - post ldconfig:
+    ldd libmpegtsdemux.so 
+        linux-vdso.so.1 =>  (0x00007fffc8778000)
+    libgstreamer-1.0.so.0 => /usr/local/lib/gstlibs/lib/libgstreamer-1.0.so.0 (0x00007f2b0ef8a000)
+    libgobject-2.0.so.0 => /usr/local/lib/gstlibs/lib/libgobject-2.0.so.0 (0x00007f2b0ed37000)
+    libglib-2.0.so.0 => /usr/local/lib/gstlibs/lib/libglib-2.0.so.0 (0x00007f2b0e9fc000)
+    libc.so.6 => /lib/x86_64-linux-gnu/libc.so.6 (0x00007f2b0e606000)
+    libgmodule-2.0.so.0 => /home/niaba/install/cerbero/build/dist/linux_x86_64/lib/libgmodule-2.0.so.0 (0x00007f2b0e401000)
+    libpthread.so.0 => /lib/x86_64-linux-gnu/libpthread.so.0 (0x00007f2b0e1e4000)
+    libm.so.6 => /lib/x86_64-linux-gnu/libm.so.6 (0x00007f2b0dedb000)
+    librt.so.1 => /lib/x86_64-linux-gnu/librt.so.1 (0x00007f2b0dcd2000)
+    libdl.so.2 => /lib/x86_64-linux-gnu/libdl.so.2 (0x00007f2b0dace000)
+    libffi.so.6 => /home/niaba/install/cerbero/build/dist/linux_x86_64/lib/libffi.so.6 (0x00007f2b0d8c5000)
+    mlib64/ld-linux-x86-64.so.2 (0x0000563990e1b000)

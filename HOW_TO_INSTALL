@@ -1,0 +1,61 @@
+build essential: 
+	sudo apt install build-essential autoconf libtool cmake git curl
+
+irc + mail : 
+	thunderbird 
+
+gstreamer : 
+	git clone https://github.com/GStreamer/cerbero.git
+	git checkout 1.14
+	./cerbero-uninstalled bootstrap
+	cerbero-uninstalled package gstreamer-1.0
+	(sudo make install)
+	// les binaire
+	 cp -R ~/install/cerbero/build/dist/linux_x86_64/bin/* ~/bin
+	si le dosssier pas présent dans le path 
+	export $PATH="~/bin:$PATH"
+	// les libs
+	mkdir /usr/local/lib/gstlibs/
+	sudo cp -R ~/install/cerbero/build/dist/linux_x86_64/lib/*  /usr/local/lib/gstlibs
+	export LD_LIBRARY_PATH=/usr/local/lib/gstlibs:LD_LIBRARY_PATH
+	//include	
+	sudo cp -R build/dist/linux_x86_64/include/* /usr/local/include/
+	//etc 
+	sudo cp -R build/dist/linux_x86_64/etc/* /usr/local/etc/
+	// 
+
+	// SOLUTION POSSIBLE
+	
+	https://gist.github.com/okulikov/3356f690b22fd617d4c4fcf418e235f8#file-gstreamer-build-sh
+
+opencv 2.4 :
+	ubuntu packet :
+	compiler maison
+
+ide : 
+	vim 
+	Clion 
+	QtCreator
+		wget http://download.qt.io/official_releases/qt/5.7/5.7.0/qt-opensource-linux-x64-5.7.0.run
+		chmod +x qt-opensource-linux-x64-5.7.0.run
+		 ./qt-opensource-linux-x64-5.7.0.run
+	Pycharm
+
+postgres + postgis:
+	sudo apt-get install postgresql postgresql-contrib postgis
+vala:
+	sudo apt install valac vala-0.30-doc valac-dbg
+grpc: 
+	cd dossier_install
+	git clone -b $(curl -L http://grpc.io/release) https://github.com/grpc/grpc
+	cd grpc
+	git submodule update --init
+	make
+	[sudo] make install
+gst-rtsp (require gstreamer installed):
+	git clone https://github.com/GStreamer/gst-rtsp-server.git
+	cd gst-rtsp-server
+	git checkout  1.11.2
+	./configure
+	make
+	sudo make installhttps://telecom.altanai.com/2016/05/20/gstreamer-1-8-1-rtsp-server-and-client-on-ubuntu/screenshot-from-2016-05-19-17-03-03/ 
