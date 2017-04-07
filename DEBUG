@@ -1,4 +1,46 @@
+Environment Variables
+GST\_DEBUG: Comma-separated list of debug categories and levels, e.g. GST_DEBUG= totem:4,typefind:5
+
+GST\_DEBUG\_NO\_COLOR: When this environment variable is set, coloured debug output is disabled.
+
+GST\_DEBUG\_DUMP\_DOT\_DIR: When set to a filesystem path, store dot files of pipeline graphs there.
+
+GST\_REGISTRY: Path of the plugin registry file. Default is ~/.gstreamer-1.0/registry-CPU.xml where CPU is the machine/cpu type GStreamer was compiled for, e.g. 'i486', 'i686', 'x86-64', 'ppc', etc. (check the output of "uname -i" and "uname -m" for details).
+
+GST\_REGISTRY\_UPDATE: Set to "no" to force GStreamer to assume that no plugins have changed, been added or been removed. This will make GStreamer skip the initial check whether a rebuild of the registry cache is required or not. This may be useful in embedded environments where the installed plugins never change. Do not use this option in any other setup.
+
+GST\_PLUGIN\_PATH: Specifies a list of directories to scan for additional plugins. These take precedence over the system plugins.
+
+
+/////////////////////////////////////////////
 GST_DEBUG_DUMP_DOT_DIR=. GST_DEBUG=3  gst-launch fakesrc do-timestamp=true blocksize=80
 num-buffers=50  sizetype=fixed  format=time filltype=pattern ! meta/x-klv ! identity sync=true !
 mpegtsmux name=m ! filesink location="./lol.ts"  videotestsrc num-buffers=50  ! x264enc ! m.
+
+
+//////////////////////////////////////////////
+gst-launch-1.0 v4l2src device=/dev/video0 ! videorate ! queue ! x264enc ! mpegtsmux name="mux2" mux2. ! filesink location=bla.mts
+
+/////////////////////////////
+GST_DEBUG_DUMP_DOT_DIR=. GST_DEBUG=3  gst-launch filesrc location=../lol.ts ! typefind ! nizar_mpegtsdemux name=d d.!\ 
+queue ! typefind ! avdec_h264 ! filesink location=lol.avi d.!\
+queue ! typefind ! filesink location=lol.exe d.
+
+/////////////////////////////////////////////
+Decode .TS Files
+The following pipeline assumes you have an transport stream file with H.264 Video and MP1L2 or MP3 Audio.
+
+gst-launch filesrc location=sample.ts ! typefind ! mpegtsdemux name=demux demux. ! queue max-size-buffers=1200 max-size-time=0 max-size-bytes=0 ! typefind ! mad ! alsasink demux. ! typefind ! TIViddec2 ! TIDmaiVideoSink videoStd=D1_NTSC videoOutput=COMPOSITE
+
+
+/////////////////////////////////////////////
+(pierre) demux name=d ! queue ! video/x-trucs !  filesink location=foo.video  d. ! queue ! audio/x-machin ! filesink location=machin.audio
+
+
+////////////////DEBUUG/////////////////////////////
+
+GST_PLUGIN_PATH=. GST_DEBUG_DUMP_DOT_DIR=. GST_DEBUG=3  gst-launch filesrc location=../lol.ts ! typefind ! nizar_mpegtsdemux name=d d. ! queue ! typefind ! avdec_h264 ! filesink location=lol.avi d. ! queue ! typefind ! filesink location=lol.exe d.
+
+///////////////// GDB GSTREAMER ///////////////////
+ GST_PLUGIN_PATH=. GST_DEBUG_DUMP_DOT_DIR=. GST_DEBUG=4 gdb --args gst-launch-1.0 filesrc location=../lol.ts ! typefind ! nizar_tsdemux name=d ! queue ! video/x-h264 ! avdec_h264 ! filesink location=lol.avi d. ! queue ! application/x-executable ! filesink location=lol.exe
 
