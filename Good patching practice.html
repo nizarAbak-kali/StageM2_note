@@ -1,0 +1,144 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.0 Transitional//EN">
+<!-- saved from url=(0070)http://en.tldp.org/HOWTO/Software-Release-Practice-HOWTO/patching.html -->
+<html><head><meta http-equiv="Content-Type" content="text/html; charset=windows-1252"><title>Good patching practice</title><meta name="GENERATOR" content="Modular DocBook HTML Stylesheet Version 1.7"><link rel="HOME" title="Software Release Practice HOWTO" href="http://en.tldp.org/HOWTO/Software-Release-Practice-HOWTO/index.html"><link rel="PREVIOUS" title="Introduction" href="http://en.tldp.org/HOWTO/Software-Release-Practice-HOWTO/introduction.html"><link rel="NEXT" title="Good project- and archive- naming practice" href="http://en.tldp.org/HOWTO/Software-Release-Practice-HOWTO/naming.html"></head><body class="sect1" bgcolor="#FFFFFF" text="#000000" link="#0000FF" vlink="#840084" alink="#0000FF"><div class="NAVHEADER"><table summary="Header navigation table" width="100%" border="0" cellpadding="0" cellspacing="0"><tbody><tr><th colspan="3" align="center">Software Release Practice HOWTO</th></tr><tr><td width="10%" align="left" valign="bottom"><a href="http://en.tldp.org/HOWTO/Software-Release-Practice-HOWTO/introduction.html" accesskey="P">Prev</a></td><td width="80%" align="center" valign="bottom"></td><td width="10%" align="right" valign="bottom"><a href="http://en.tldp.org/HOWTO/Software-Release-Practice-HOWTO/naming.html" accesskey="N">Next</a></td></tr></tbody></table><hr align="LEFT" width="100%"></div><div class="sect1"><h1 class="sect1"><a name="patching"></a>2. Good patching practice</h1><p>Most people get involved in open-source software by writing patches
+for other peoples' software before releasing projects of their own.
+Suppose you've written a set of source-code changes for someone else's
+baseline code. Now put yourself in that person's shoes. How is he
+to judge whether to include the patch?</p><p>The truth is that it is very difficult to judge the quality of code.
+So developers tend to evaluate patches by the quality of the submission.
+They look for clues in the submitter's style and communications behavior
+instead — indications that the person has been in their shoes and
+understands what it's like to have to evaluate and merge an incoming patch.
+</p><p>This is actually a pretty reliable proxy for code quality.  In many
+years of dealing with patches from many hundreds of strangers, I have only
+seldom seen a patch that was thoughtfully presented and respectful of my
+time but technically bogus.  On the other hand, experience teaches me that
+patches which look careless or are packaged in a lazy and inconsiderate way
+are very likely to actually <em>be</em> bogus.</p><p>Here are some tips on how to get your patch accepted:</p><div class="sect2"><h2 class="sect2"><a name="AEN107"></a>2.1. Do send patches, don't send whole archives or files</h2><p>If your change includes a new file that doesn't exist in the code,
+then of course you have to send the whole file.  But if you're modifying
+an already-existing file, don't send the whole file.  Send a diff instead;
+specifically, send the output of the 
+<span class="citerefentry"><span class="refentrytitle">diff</span>(1)</span>
+command run to compare the baseline distributed version against your
+modified version.</p><p>The diff command and its dual, 
+<span class="citerefentry"><span class="refentrytitle">patch</span>(1)</span>
+(which automatically applies a diff to a baseline file)
+are the most basic tools of open-source development.  Diffs are better
+than whole files because the developer you're sending a patch to may
+have changed the baseline version since you got your copy.  By sending
+him a diff you save him the effort of separating your changes from his;
+you show respect for his time.</p></div><div class="sect2"><h2 class="sect2"><a name="AEN117"></a>2.2. Send patches against the current version of the code.</h2><p>It is both counterproductive and rude to send a maintainer
+patches against the code as it existed several releases ago, and expect
+him to do all the work of determining which changes duplicate things he
+have since done, versus which things are actually novel in your patch.</p><p>As a patch submitter, it is <em>your</em> responsibility
+to track the state of the source and send the maintainer a minimal patch
+that expresses what you want done to the main-line codebase. That means
+sending a patch against the current version.</p><p>Nowadays effectively all open-source projects make their source code
+available through public anonymous access to the project's version-control
+repositrity. The most effective way to ensure that you're patching what's
+current is to check the head version of the code out of the project's
+repository. All version-control systems have a command that lets you
+make a diff between your working copy and head; use that.</p></div><div class="sect2"><h2 class="sect2"><a name="AEN123"></a>2.3. Don't include patches for generated files.</h2><p>Before you send your patch, walk through it and delete any
+patch bands for files in it that are going to be automatically regenerated
+once he applies the patch and remakes.  The classic examples of this
+error are C files generated by <span class="application">Bison</span> 
+or <span class="application">Flex</span>.</p><p>These days the most common mistake of this kind is sending a diff
+with a huge band that is nothing but changebars between your
+<b class="command">configure</b> script and his.  This file is generated by
+<b class="command">autoconf</b>.</p><p>This is inconsiderate.  It means your recipient is put to the trouble
+of separating the real content of the patch from a lot of bulky noise.
+It's a minor error, not as important as some of the things we'll get
+to further on — but it will count against you.</p><p>You will probably avoid this automatically if you have checked out
+the code from the project repo and use the version-control system's diff
+command to generate your patch.</p></div><div class="sect2"><h2 class="sect2"><a name="AEN133"></a>2.4. Don't send patch bands that just tweak version-control $-symbols.</h2><p>Some people put special tokens in their source files that are
+expanded by the version-control system when the file is checked in: the
+<span class="markup">$Id$</span> construct used by RCS, CVS, and
+Subversion, for example.</p><p>If you're using a local version-control system yourself, your changes
+may alter these tokens.  This isn't really harmful, because when your
+recipient checks his code back in after applying your patch they'll get
+re-expanded based on <em>his</em> version-control status.  But
+those extra patch bands are noise.  They're distracting.  It's more
+considerate not to send them.</p><p>This is another minor error.  You'll be forgiven for it if you
+get the big things right.  But you want to avoid it anyway.</p></div><div class="sect2"><h2 class="sect2"><a name="AEN140"></a>2.5. Do use -c or -u format, don't use the default (-e) format</h2><p>The default (-e) format of
+<span class="citerefentry"><span class="refentrytitle">diff</span>(1)</span>
+is very brittle.  It doesn't include any context, so the patch tool
+can't cope if any lines have been inserted or deleted in the baseline 
+code since you took the copy you modified.</p><p>Getting an -e diff is annoying, and suggests that the sender is
+either an extreme newbie, careless, or clueless.  Most such patches
+get tossed out without a second thought.</p></div><div class="sect2"><h2 class="sect2"><a name="AEN147"></a>2.6. Do include documentation with your patch</h2><p>This is very important.  If your patch makes a user-visible addition
+or change to the software's features, <em>include changes to the
+appropriate man pages and other documentation files in your patch</em>.
+Do <em>not</em> assume that the recipient will be happy to
+document your code for you, or else to have undocumented features lurking
+in the code.</p><p>Documenting your changes well demonstrates some good things.  First,
+it's considerate to the person you are trying to persuade.  Second, it
+shows that you understand the ramifications of your change well enough
+to explain it to somebody who can't see the code.  Third, it demonstrates
+that you care about the people who will ultimately use the software.</p><p>Good documentation is usually the most visible sign of what separates
+a solid contribution from a quick and dirty hack.  If you take the time
+and care necessary to produce it, you'll find you're already 85% of the
+way to having your patch accepted with most developers.</p></div><div class="sect2"><h2 class="sect2"><a name="AEN154"></a>2.7. Do include an explanation with your patch</h2><p>Your patch should include cover notes explaining why you think the
+patch is necessary or useful.  This is explanation directed not to the
+users of the software but to the maintainer to whom you are sending the
+patch.</p><p>The note can be short — in fact, some of the most effective
+cover notes I've ever seen just said "See the documentation updates in this
+patch".  But it should show the right attitude.</p><p>The right attitude is helpful, respectful of the maintainer's time,
+quietly confident but unassuming.  It's good to display understanding of
+the code you're patching.  It's good to show that you can identify with the
+maintainer's problems. It's also good to be up front about any risks you
+perceive in applying the patch.  Here are some examples of the sorts of
+explanatory comments that I like to see in cover notes:</p><p><span class="QUOTE">"
+I've seen two problems with this code, X and Y.  I fixed problem X, but I
+didn't try addressing problem Y because I don't think I understand
+the part of the code that I believe is involved.
+"</span></p><p><span class="QUOTE">"
+Fixed a core dump that can happen when one of the foo inputs is too long.
+While I was at it, I went looking for similar overflows elsewhere.  I
+found a possible one in blarg.c, near line 666.  Are you sure the sender
+can't generate more than 80 characters per transmission?
+"</span></p><p><span class="QUOTE">"
+Have you considered using the Foonly algorithm for this problem?  There
+is a good implementation at &lt;http://www.somesite.com/~jsmith/foonly.html&gt;.
+"</span></p><p><span class="QUOTE">"
+This patch solves the immediate problem, but I realize it complicates the
+memory allocation in an unpleasant way.  Works for me, but you should 
+probably test it under heavy load before shipping. 
+"</span></p><p><span class="QUOTE">"
+This may be featurititis, but I'm sending it anyway.  Maybe you'll know a
+cleaner way to implement the feature.
+"</span></p></div><div class="sect2"><h2 class="sect2"><a name="AEN169"></a>2.8. Do include useful comments in your code</h2><p>Usually as a maintainer, I will want to have strong confidence that I
+understand your changes before merging them in.  This isn't an invariable
+rule; if you have a track record of good work, with me I may just run a
+casual eyeball over the changes before checking them in semi-automatically.
+But everything you can do to help me understand your code and decrease my
+uncertainty increases your chances that I will accept your patch.</p><p>Good comments in your code help me understand it.  Bad comments 
+don't.</p><p>Here's an example of a bad comment:</p><table border="0" bgcolor="#E0E0E0" width="100%"><tbody><tr><td><font color="#000000"><pre class="programlisting">/* norman newbie fixed this 13 Aug 2009 */
+</pre></font></td></tr></tbody></table><p>This conveys no information.  It's nothing but a muddy territorial 
+bootprint you're planting in the middle of my code.  If I take your patch
+(which you've made less likely) I'll almost certainly strip out this
+comment.  If you want a credit, include a patch band for the project 
+<tt class="filename">NEWS</tt> or <tt class="filename">HISTORY</tt> file.  I'll
+probably take that.</p><p>Here's an example of a good comment:</p><table border="0" bgcolor="#E0E0E0" width="100%"><tbody><tr><td><font color="#000000"><pre class="programlisting">/*
+ * This conditional needs to be guarded so that crunch_data()
+ * never gets passed a NULL pointer.  &lt;norman_newbie@foosite.com&gt;
+ */
+</pre></font></td></tr></tbody></table><p>This comment shows that you understand not only my code but the
+kind of information that I need to have confidence in your changes.
+This kind of comment <em>gives</em> me confidence in your
+changes.</p></div><div class="sect2"><h2 class="sect2"><a name="AEN182"></a>2.9. Just one bugfix or new feature per patch.</h2><p>Don't gather various bugfixes, new features or other stuff and
+send them as one single diff file. Instead, build a single diff for every
+bugfix or feature. Every single diff should be generated using the current
+version of the code and should not depend on any other patch you or someone
+else sent before.</p><p>This helps the maintainer to read and understand your code, and he can
+decide whether he wants to accept or abadon this single bugfix or feature.
+For example, if you add a feature garanting full root access for everyone
+because it's useful in your special setting, the maintainer will probably not
+accept this part of your patch. When you send a single diff file confounding
+this root access feature along with some bugfixes and other useful things, you
+have a good chance the maintainer will ignore your complete patch.</p><p>With each bugfixes and new feature as a single diff file, the
+maintainer could e.g. include your bugfixes in a few minutes and take later
+a closer look to your new features or security issues.</p><p>Patches depending on other patches raise similar problems.  If the
+maintainer rejects your basic patch, he won't be able to apply the
+others. If you can't avoid such dependencies, offer to the maintainer that
+you will bundle a patch with the sections or features he wants to
+add.</p></div></div><div class="NAVFOOTER"><hr align="LEFT" width="100%"><table summary="Footer navigation table" width="100%" border="0" cellpadding="0" cellspacing="0"><tbody><tr><td width="33%" align="left" valign="top"><a href="http://en.tldp.org/HOWTO/Software-Release-Practice-HOWTO/introduction.html" accesskey="P">Prev</a></td><td width="34%" align="center" valign="top"><a href="http://en.tldp.org/HOWTO/Software-Release-Practice-HOWTO/index.html" accesskey="H">Home</a></td><td width="33%" align="right" valign="top"><a href="http://en.tldp.org/HOWTO/Software-Release-Practice-HOWTO/naming.html" accesskey="N">Next</a></td></tr><tr><td width="33%" align="left" valign="top">Introduction</td><td width="34%" align="center" valign="top">&nbsp;</td><td width="33%" align="right" valign="top">Good project- and archive- naming practice</td></tr></tbody></table></div></body></html>

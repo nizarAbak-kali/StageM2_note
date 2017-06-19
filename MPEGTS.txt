@@ -1,0 +1,120 @@
+// NOTE SUR TOUT CE QUI TOUCHE MPEGSTS
+
+TS :
+	- Transports stream 
+	- format pour contenir du contenue digital 
+	- audio/video/PS (private stream)
+
+	PSIP: 
+		- le protocole utilisé dans le système de télévision numérique ATSC pour transporter les métadonnées sur chaque canal dans le flux de transport MPEG d'une station de télévision et de publier des informations sur les programmes de télévision afin que les téléspectateurs puissent choisir quoi suivre par titre et description d'un programme.
+	
+	PES: 
+		- carry elementary streams in packets
+		- 188 byte packet section
+
+	- TS encapsule d'autre sous stream 
+
+	KLV : 
+		- data encoding standard 
+		- key(1-16) bytes/ lenght(1;2;4) bytes -> integer = nb bytes/ data
+		- big endian
+	
+	M2TS : TS + 4 bytes de TC trime de 192-byte
+
+	PAT : 
+		- Program association table 
+		- liste tout les program dans le TS
+		- 16 bit program number
+	PMT : 
+		- Program  Map Table 
+		- contiens les infos sur les programs 
+		- pour chaque program 1 pmt
+	PCR:
+		- Program clock reference 
+		- pour que le decoder présente du contenue synchroniser 
+		- pcr transmit au moins une fois tout les 100ms 
+		- transmit dans l'adaptation field du MPEGTS
+
+	Null Packet :
+		- le bourrage pour maintenir le bitrate
+		-  PID 0x1FFF
+
+		M2TS : TS + 4 bytes de TC trime de 192-byte
+
+
+*********************Element of TS 
+	PAcket :
+		- header files big-endian
+		- PID 13 bits  0x1fff00 Packet Identifier, describing the payload data.
+	
+
+
+
+
+**********************schema 
+
+PAT (PID = 0)
+!
+!
+! 	-> PMT 1 (PMT_PID = 100)
+	!
+	!-------- -> Program ID 100
+			! 	ES 	PID
+			!
+			!----> 	video1 	101
+				!
+				!
+				!
+				!----> 	|header : PID(101)|payload : video1| 	
+
+			!----> 	audio1 	102
+			.
+			.
+			.
+			.
+
+
+
+
+************************** INFO DANS LE CODE 
+
+flux_%01x_%04x -> demux program generation (dans quelle programme on est ...) _ Program Id
+	
+Structure de Mpegstmux (defini dans mpegtsmux.h)
+
+	- srcpad  -> output pad for the muxed streams
+	- programs (HashTable) -> hashtable qui contient les programs
+	- collects (GstCOllectPads) --> contient les differents pads d'entrés à muxer
+	
+	- TsMux (tsmux.h)
+
+		- nb_streams (guint)
+		- streams -> contient tout les streams
+		- programs (Glist) -> tableau avec tout les programs 
+		- si_sections (GHashtable) -> table avec les TsMuxSection à ecrire
+			
+			- TsMuxSection
+			
+				- pi (TsMuxPacketInfo)-> tsmux packet info
+					
+					- TsMuxPacketInfo 
+						- pid 
+						- flags
+
+				- section (GstMegtsSection)-> contient la data 
+					 
+					- GstMegtsSection 
+						- section_type (GstMegtsSectionType) -> enum des differents que peut prendre une section (PAT, PMT, ....)
+						- pid -> le l'id de la section
+						- table_id ->  l'id de la table qui contient cet section 
+						- sectyi
+					
+
+		- pat (TsMuxSection) -> Program association table 
+		- transport_id
+
+			
+		 
+
+
+

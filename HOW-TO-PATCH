@@ -1,0 +1,51 @@
+ *************************************** GOOD PRACTICES
+
+2.1. Do send patches, don't send whole archives or files
+2.2. Send patches against the current version of the code
+2.3. Don't include patches for generated files.
+2.4. Don't send patch bands that just tweak version-control $-symbols.
+2.5. Do use -c or -u format, don't use the default (-e) format
+2.6. Do include documentation with your patch
+2.7. Do include an explanation with your patch
+2.8. Do include useful comments in your code
+2.9. Just one bugfix or new feature per patch.
+
+************************************** COMMANDS
+
+diff pour créer des patch :  
+
+
+marche à suivre :
+
+- diff entre mon code local et la branche gst 1.10.4 
+
+diff -Naur forlder1 forlder2 > file.patch
+
+- on obtient un .patch qui contient les diffs 
+- on applique le patch au code de la branche gst
+
+mv patch.patch  gst_folder/patch.patch
+patch -s -p0 < patch.patch
+
+- créer un commit
+
+git config --global user.name "George S. Treamer"
+git config --global user.email "george.s.treamer@example.com"
+git commit 
+
+- et on" git format-patch -1 "pour obtenir un patch 
+- on attache le patch au bugzilla report
+
+
+ ************************************** HOW TO PATCH FOR GST
+
+ -> soumission des patch au travers de GNOME bugzilla :  https://bugzilla.gnome.org/
+ 
+ - créer un compte sur la plateforme 
+ - pour un bug : créer un bug et attaché les patchs avec 
+ - pour une amélioration : set la severity du bug a "enhancement"  
+ - prefixer le resumé avec: le_nom_de_l'élément:, plugin-name:, lib: ; 
+ ensuite garde le reste du résumé aussi concis et précis que possible  
+ - ne pas envoyer lde patches à la mailing list gstreamer-devel
+ - ne pas envoyer de pull request sur le github 
+ - envoyer des patch git-format

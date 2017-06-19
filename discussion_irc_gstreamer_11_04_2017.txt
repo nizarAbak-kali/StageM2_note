@@ -1,0 +1,45 @@
+09:44:25 - slomo : cfoch-always: so let's keep it at that
+09:45:22 - Nizar : hi everyone !! i would like to know if a binary media types already exist ?
+09:45:58 - bilboed : no, we only do analog
+09:46:22 - bilboed : what do you mean by "binary media types" ?
+09:46:34 - bilboed : (analog was a joke btw)
+09:46:52 - Nizar : bilboed: i'm triying to mux video stream with binary stream
+09:47:01 - bilboed : what do you mean by "binary stream" ?
+09:47:23 - Nizar : bilboed: any kind
+09:47:31 - cfoch-always : gkiagia: https://paste.fedoraproject.org/paste/adK48BLuY6QrlRZnXx2-Kl5M1UNdIGYhyRLivL9gydE=
+09:47:50 - bilboed : Nizar, GST_CAPS_ANY
+09:47:57 - bilboed : although that's not fixed
+09:47:59 - bilboed : one sec
+09:48:41 - bilboed : the problem is that for a muxer to "properly" mux elementary streams, it needs to know its type (so it can mark it as such in the headers/index)
+09:48:56 - bilboed : do you have a more specific example of what kind of stream it would be ?
+09:49:03 - Nizar : bilboed: for example im extracting metadata from a video stream and im trying to stream  the mux of the video and the metadata
+09:49:25 - __tim : we have support for klv meta in some muxers/demuxers
+09:49:27 - Nizar : im using mpegtsmux
+09:49:46 - bilboed : you want to pass it as klv meta
+09:49:50 - bilboed : mpegtsmux supports that
+09:50:11 - Nizar : i know ....
+09:50:31 - Nizar : but i was triying to add new media type
+09:50:38 - bilboed : don't, really
+09:50:58 - Nizar : so my metadata could go with the video
+09:51:24 - bilboed : ? it will be muxed alongside the video in a mpeg-ts transport stream
+09:51:32 - bilboed : isn't that what you want ?
+09:51:36 - Nizar : yes
+09:51:56 - bilboed : then expose your metadata as klv
+09:51:57 - ricotz : __tim, hi, these are the meson gir-issues I found -- https://paste.debian.net/plain/926866
+09:52:13 - bilboed : klv is a standard for such metadata
+09:53:45 - Nizar : but do i need to format my metadata in the klv format ?
+09:54:40 - bilboed : google "klv metadata library", there are a bunch of libraries out there to format it as such
+09:55:27 - cfoch-always : slomo: ok, thanks
+09:55:39 - hasselmm [~mathias@185.28.184.2] est entré dans le canal.
+09:56:03 - Nizar : bilboed: thanks i will look at it
+09:56:13 - slomo : bilboed, Nizar: you could also extract these from the mxf plugin and make them independent of mxf (which they mostly are already)
+09:56:26 - cfoch-always : slomo: after those patches are commited, I wonder if you can put an eye on this patch: https://bugzilla.gnome.org/show_bug.cgi?id=769176
+09:56:32 - bilboed : slomo, was thinking the same thing :D a helper library
+09:57:11 - cfoch-always : slomo: that patch allows to detect multiple faces (the original only detected one face) and put multiple images (not being limited to SVG only)
+09:57:41 - slomo : cfoch-always: ok, we'll see
+09:58:21 - ao2 [~ao2@cl-35.trn-01.it.sixxs.net] est entré dans le canal.
+09:58:23 - ddejean a quitté le canal (Part).
+09:58:32 - __tim : slomo, bilboed: I've been thinking about a klv helper lib, but it's quite difficult API-wise
+09:59:15 - __tim : it's also really easy to just write your data with bytewriter, the format is simple enough and you'll know what meta you want to write
+09:59:38 - slomo : yes
+09:59:49 - slomo : but at some point that might become boring and you'd want a library :)
