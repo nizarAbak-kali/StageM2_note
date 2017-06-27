@@ -1,0 +1,46 @@
+	= GstBuffer:
+
+* Description: 
+- Unité de base pour le transfer de donnée dans Gstreamer.
+- contient: 
+	+ offset 
+	+ timing
+	+ metadata
+	+ un bloc de GstMemory
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+= GstMemory:
+
+* Description:
+- reference d'objet de poid leger qui envelope une region mémoire.
+- alloue une memoire de maxsize
+- le maxsize est fixe durant tout la durée de vie de l'objet
+- contient :
+	+ maxsize
+	+ offset 
+	+ une size pour spécifier l'ordre de grandeur alloué en mémoire
+* Functions:
+- gst_allocator_alloc(): 
+	+ crée de la mémoire 
+	+ quand null est utilisé comme allocateur c'est l'allocateur par défaut qui et utilisé.
+- gst_allocator_register():
+	+ pour enrengistrer de nouveau allocateur
+	+ les allocators sont identifé par un nom
+- gst_allocator_find():
+	+ 
+- gst_allocator_set_default():
+- gst_memory_new_wrapped():
+- gst_memory_ref():
+- gst_memory_unref():

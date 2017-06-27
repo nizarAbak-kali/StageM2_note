@@ -1,0 +1,46 @@
+petit fichier expliciter les modules composant le projet sisselbox
+
+Algotest : 
+- test d'algo avec opencv
+- detection de visage
+- distance
+- mouvement
+
+----------------------------------------------
+
+ansible ;
+- contient les fichier config pour ansible
+- integration continue 
+- automatisation de certaine tache
+
+----------------------------------------------
+doc :
+	architecture :
+	- archi fonctionnel du projet Sbox et description des composant
+	hiteritronic :
+	- contient l'api rest RAML
+
+----------------------------------------------
+
+httpproxy:
+- nging config -> decrit les url pour le push et le subscribe 
+- un readme decrivant un usecase
+
+----------------------------------------------
+metadatapayloader:
+	rtpmetadatadepay:
+
+		- plugin gst pour la désencapsulation d'un flux dans des packets RTP (Real Time Transport Protocol)
+	rtpmetadatapay:
+		- plugin gst pour l'encapsulation d'un flux dans des packets RTP (Real Time Transport Protocol)
+
+----------------------------------------------
+owimageprocessing:
+	plugin :
+		- frame.proto modélise rectangle contenant : un visage, ou du mouvement.
+		- contient les algos de processing d'image opencv 
+		- fait le muxage de metadata au format ONVIF 
+
+----------------------------------------------
+protobuf:
+	- ui_proto.proto  decris les me
